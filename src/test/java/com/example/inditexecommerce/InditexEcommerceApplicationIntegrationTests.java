@@ -17,6 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class InditexEcommerceApplicationIntegrationTests {
 
+    private static final String BRAND_ID = "1";
+    private static final String PRODUCT_ID = "35455";
+
     @Autowired
     private MockMvc mvc;
 
@@ -27,10 +30,8 @@ class InditexEcommerceApplicationIntegrationTests {
      */
     @Test
     public void test1InditextChallenge() throws Exception {
-        String brandId = "1";
-        String productId = "35455";
         mvc.perform(MockMvcRequestBuilders
-                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-10.00.00", brandId, productId)
+                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-10.00.00", BRAND_ID, PRODUCT_ID)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -63,10 +64,8 @@ class InditexEcommerceApplicationIntegrationTests {
      */
     @Test
     public void test2InditextChallenge() throws Exception {
-        String brandId = "1";
-        String productId = "35455";
         mvc.perform(MockMvcRequestBuilders
-                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-16.00.00", brandId, productId)
+                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-16.00.00", BRAND_ID, PRODUCT_ID)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -99,10 +98,8 @@ class InditexEcommerceApplicationIntegrationTests {
      */
     @Test
     public void test3InditextChallenge() throws Exception {
-        String brandId = "1";
-        String productId = "35455";
         mvc.perform(MockMvcRequestBuilders
-                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-21.00.00", brandId, productId)
+                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-21.00.00", BRAND_ID, PRODUCT_ID)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())

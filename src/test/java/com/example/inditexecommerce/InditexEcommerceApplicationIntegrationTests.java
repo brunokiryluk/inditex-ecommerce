@@ -20,13 +20,13 @@ class InditexEcommerceApplicationIntegrationTests {
     @Autowired
     private MockMvc mvc;
 
+    /**
+     * Test 1 inditex:
+     * "Test 1: petición a las 10:00 del día 14 del producto 35455   para la brand 1 (ZARA)"
+     * En este test se comprueba que la aplicacion devuelve un PriceDTO cuyo precio final es 35.50
+     */
     @Test
     public void test1InditextChallenge() throws Exception {
-        /**
-         * Test 1 inditex:
-         * "Test 1: petición a las 10:00 del día 14 del producto 35455   para la brand 1 (ZARA)"
-         * En este test se comprueba que la aplicacion devuelve un PriceDTO cuyo precio final es 35.50
-         */
         String brandId = "1";
         String productId = "35455";
         mvc.perform(MockMvcRequestBuilders

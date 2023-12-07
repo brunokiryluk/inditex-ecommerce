@@ -3,10 +3,12 @@ package com.example.inditexecommerce.infraestructure.controller;
 import com.example.inditexecommerce.application.services.ObtainPrice;
 import com.example.inditexecommerce.domain.models.Price;
 import com.example.inditexecommerce.infraestructure.controller.dtos.response.PriceDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
@@ -32,6 +34,7 @@ public class PricesController {
 
     //http://localhost:8080/prices/brands/1/products/35455?dateRequest=2020-06-14-16.00.00
     @GetMapping("/prices/brands/{brandId}/products/{productId}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PriceDTO> getFilteredPrices(
             @PathVariable String productId,
             @PathVariable String brandId,

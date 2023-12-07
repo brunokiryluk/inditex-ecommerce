@@ -125,4 +125,38 @@ class InditexEcommerceApplicationIntegrationTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.currency", is("EUR")));
     }
 
+    /**
+     * Test 4 inditex:
+     * "Test 4: petición a las 10:00 del día 15 del producto 35455   para la brand 1 (ZARA)"
+     * En este test se comprueba que la aplicacion devuelve un PriceDTO cuyo precio final es 35.50 y precio de lista 3
+     */
+    @Test
+    public void test4InditextChallenge() throws Exception {
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-15-10.00.00", BRAND_ID, PRODUCT_ID)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceId", is(3)))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.brand").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.brand.name", is("ZARA")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.applicablePriceListId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.applicablePriceListId", is("3")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.startDate").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.startDate", is("2020-06-15 00:00:00.0")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.endDate").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.endDate", is("2020-06-15 11:00:00.0")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finalPrice").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finalPrice", is("30.5")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.currency").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.currency", is("EUR")));
+    }
+
 }

@@ -11,5 +11,5 @@ import java.util.List;
 public interface JPAPriceRepository extends CrudRepository<PriceDB, String> {
 
     List<PriceDB> findByBrandBrandIdAndProductIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-            long brandId, String productId, Date date1, Date date2);
+            int brandId, String productId, Date date1, Date date2);
 }

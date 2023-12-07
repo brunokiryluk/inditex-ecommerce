@@ -56,4 +56,76 @@ class InditexEcommerceApplicationIntegrationTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.currency", is("EUR")));
     }
 
+    /**
+     * Test 2 inditex:
+     * "Test 2: petición a las 16:00 del día 14 del producto 35455   para la brand 1 (ZARA)"
+     * En este test se comprueba que la aplicacion devuelve un PriceDTO cuyo precio final es 25.45 y precio de lista 2
+     */
+    @Test
+    public void test2InditextChallenge() throws Exception {
+        String brandId = "1";
+        String productId = "35455";
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-16.00.00", brandId, productId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceId", is(2)))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.brand").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.brand.name", is("ZARA")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.applicablePriceListId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.applicablePriceListId", is("2")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.startDate").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.startDate", is("2020-06-14 15:00:00.0")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.endDate").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.endDate", is("2020-06-14 18:30:00.0")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finalPrice").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finalPrice", is("25.45")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.currency").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.currency", is("EUR")));
+    }
+
+    /**
+     * Test 3 inditex:
+     * "Test 3: petición a las 21:00 del día 14 del producto 35455   para la brand 1 (ZARA)"
+     * En este test se comprueba que la aplicacion devuelve un PriceDTO cuyo precio final es 35.50 y precio de lista 1
+     */
+    @Test
+    public void test3InditextChallenge() throws Exception {
+        String brandId = "1";
+        String productId = "35455";
+        mvc.perform(MockMvcRequestBuilders
+                        .get("/prices/brands/{brandId}/products/{productId}?dateRequest=2020-06-14-21.00.00", brandId, productId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceId", is(1)))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.brand").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.brand.name", is("ZARA")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.applicablePriceListId").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.applicablePriceListId", is("1")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.startDate").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.startDate", is("2020-06-14 00:00:00.0")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.endDate").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.endDate", is("2020-12-31 23:59:59.0")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finalPrice").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.finalPrice", is("35.5")))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$.currency").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.currency", is("EUR")));
+    }
+
 }

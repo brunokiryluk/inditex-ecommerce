@@ -2,7 +2,9 @@ package com.example.inditexecommerce.application.services;
 
 import com.example.inditexecommerce.domain.PriceRepository;
 import com.example.inditexecommerce.domain.models.Price;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.util.Comparator;
@@ -25,7 +27,7 @@ public class ObtainPrice {
         if (!prices.isEmpty()) {
             return getPriceByPriority(prices, date);
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price not found");
     }
 
     public List<Price> getAllPrices() {

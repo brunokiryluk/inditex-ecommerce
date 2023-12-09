@@ -25,10 +25,9 @@ public class PricesController {
 
         this.obtainPrice = obtainPrice;
     }
-
-    // TODO: Agregar documentacion de swagger
+    //http://localhost:8080/prices
     @GetMapping("/prices")
-    public ResponseEntity<List<Price>> getPrices() throws ParseException {
+    public ResponseEntity<List<Price>> getPrices() {
         return ResponseEntity.ok(obtainPrice.getAllPrices());
     }
 

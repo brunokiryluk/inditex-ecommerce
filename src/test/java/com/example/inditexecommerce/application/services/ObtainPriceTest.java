@@ -6,13 +6,17 @@ import com.example.inditexecommerce.domain.models.Price;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -34,131 +38,149 @@ public class ObtainPriceTest {
     }
 
     /**
-     * Given a productId and a brandID that is not present in Database,
-     * then getPrice(productId, date, brandId) should return null.
+     * Given prices List, when request is between two dates ranges,
+     * then should return price with highest priority.
      */
 
     @Test
-    public void givenInvalidProductIdAndInvalidBrandIdWhenGetPriceThenShouldReturnNull() throws ParseException {
+    public void givenPricesListWhenRequestIsInTwoRangesThenShouldReturnPriceWithHighestPriority() throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
+        Date requestDate = dateFormat.parse("2020-06-14-10.00.00");
         List<Price> prices = createPricesList();
 
         when(priceRepository.findByProductIdAndDateAndBrand(any(), any(), any(), anyInt())).thenReturn(prices);
 
         Price resultPrice = null;
         try {
-            resultPrice = obtainPrice.getPrice("5", new Date(), "5");
+            resultPrice = obtainPrice.getPrice("35455", requestDate, "1");
         } catch (ParseException e) {
             fail();
         }
-        assertNull(resultPrice);
+        assertNotNull(resultPrice);
+        assertEquals(1, resultPrice.brand.brandId);
+        assertEquals("Zara", resultPrice.brand.name);
+        assertEquals(35.50, resultPrice.price);
+        assertEquals(1, resultPrice.priceList);
     }
 
     /**
-     * Given a productId and a brandID that  is  present in Database,
-     * and a date that out of any range (this means: is not between startDate and endDate of any Price),
-     * then getPrice(productId, date, brandId) should return null.
+     * Given an empty List, then should throw exc
      */
 
-//    @Test
-//    public void givenValidProductIdAndValidBrandIdAndInvalidDateWhenGetPriceThenShouldReturnNull() {
-//        List<Price> mockedDBPrices = createPricesList();
-//        when(pricesFinder.retrievePrices()).thenReturn(mockedDBPrices);
-//
-//        Price resultPrice = null;
-//        try {
-//            resultPrice = obtainFilteredPriceService.getPrice("35455", "2023-06-14 00:00:00", "1");
-//        } catch (ParseException e) {
-//            fail();
-//        }
-//        assertNull(resultPrice);
-//    }
+    @Test
+    public void givenAnEmptyListThenShouldThrowExc() throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
+        Date requestDate = dateFormat.parse("2020-06-14-10.00.00");
+        List<Price> prices = new ArrayList<>();
+        when(priceRepository.findByProductIdAndDateAndBrand(any(), any(), any(), anyInt())).thenReturn(prices);
+
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            obtainPrice.getPrice("35455", requestDate,  "1");
+        });
+        assertNotNull(exception);
+        assertEquals("Price not found", exception.getReason());
+    }
 
     /**
-     * Given a productId and a brandID that  is  present in Database,
-     * and a date that in range (this means: is  between startDate and endDate of a specific Price),
-     * then getPrice(productId, date, brandId) should return a Price with highest priority (priority == 4).
+     * Given a request, when getAllPrices() then should return mocked list
      */
 
-//    @Test
-//    public void givenValidProductIdAndValidBrandIdAndValidDateWhenGetPriceThenShouldReturnPrice() {
-//        List<Price> mockedDBPrices = createPricesList();
-//        when(pricesFinder.retrievePrices()).thenReturn(mockedDBPrices);
-//
-//        Price resultPrice = null;
-//        try {
-//            resultPrice = obtainFilteredPriceService.getPrice("35455", "2020-06-14 15:00:01", "1");
-//        } catch (ParseException e) {
-//            fail();
-//        }
-//        assertNotNull(resultPrice);
-//        assertEquals("1", resultPrice.brandId);
-//        assertEquals(4, resultPrice.priority);
-//        assertEquals(200, resultPrice.price);
-//    }
+    @Test
+    public void givenARequestWhenGetAllPricesShouldReturnFullList() throws ParseException {
+        List<Price> mockedPrices =  createPricesList();
+        when(priceRepository.findAll()).thenReturn(mockedPrices);
 
-    /**
-     * Given a productId and a brandID that  is  present in Database,
-     * and an invalid date, then should throw ParseException.
-     */
-
-//    @Test
-//    public void givenInvalidDateThenShouldThrowParseExc() {
-//        List<Price> mockedDBPrices = createPricesList();
-//        when(pricesFinder.retrievePrices()).thenReturn(mockedDBPrices);
-//        ParseException parseException = assertThrows(ParseException.class, () -> {
-//            obtainFilteredPriceService.getPrice("35455", "15:00:01", "1");
-//        });
-//        assertNotNull(parseException);
-//        assertEquals("Unparseable date: \"15:00:01\"", parseException.getMessage());
-//    }
+        List<Price> prices = obtainPrice.getAllPrices();
+        assertEquals(6, prices.size());
+    }
 
     private List<Price> createPricesList() throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
         Date startDate1 = dateFormat.parse("2020-06-14-00.00.00");
-        Date endDate1 = dateFormat.parse("2020-06-14-18.30.00");
+        Date endDate1 = dateFormat.parse("2020-06-14-23.59.59");
         Price price1 = Price.builder()
-                .priceId(123L)
+                .priceId(1L)
                 .brand(Brand.builder().brandId(1).name("Zara").build())
                 .startDate(startDate1)
                 .endDate(endDate1)
-                .priceList(2)
+                .priceList(1)
                 .productId("35455")
-                .priority(2)
-                .price(200)
+                .priority(0)
+                .price(35.50)
                 .currency("EUR")
                 .build();
 
-        // Setters para las 4 líneas comentadas
-        // Zara
-//        setPriceValues(price1, "1", "2020-06-14 00:00:00", "2020-12-31 23:59:59", 2, "35455", 0, 35.50, "EUR");
-//        setPriceValues(price2, "1", "2020-06-14 15:00:00", "2020-06-14 18:30:00", 2, "35455", 1, 30, "EUR");
-//        setPriceValues(price3, "1", "2020-06-14 15:00:00", "2021-06-14 18:30:00", 2, "35455", 3, 25.45, "EUR");
-//        setPriceValues(price4, "1", "2020-06-14 15:00:00", "2020-06-14 18:30:00", 2, "35455", 4, 200, "EUR");
-//        // PULL&BEAR
-//        setPriceValues(price5, "2", "2020-06-15 00:00:00", "2020-06-15 11:00:00", 2, "35455", 1, 30.50, "EUR");
-//        setPriceValues(price6, "2", "2020-06-15 16:00:00", "2020-12-31 23:59:59", 2, "35455", 1, 38.95, "EUR");
+        Date startDate2 = dateFormat.parse("2020-06-14-15.00.00");
+        Date endDate2 = dateFormat.parse("2020-06-14-18.30.00");
+        Price price2 = Price.builder()
+                .priceId(2L)
+                .brand(Brand.builder().brandId(1).name("Zara").build())
+                .startDate(startDate2)
+                .endDate(endDate2)
+                .priceList(2)
+                .productId("35455")
+                .priority(1)
+                .price(25.45)
+                .currency("EUR")
+                .build();
 
-        return List.of(price1);
+        Date startDate3 = dateFormat.parse("2020-06-15-00.00.00");
+        Date endDate3 = dateFormat.parse("2020-06-15-11.00.00");
+        Price price3 = Price.builder()
+                .priceId(3L)
+                .brand(Brand.builder().brandId(1).name("Zara").build())
+                .startDate(startDate3)
+                .endDate(endDate3)
+                .priceList(3)
+                .productId("35455")
+                .priority(1)
+                .price(30.50)
+                .currency("EUR")
+                .build();
+
+        Date startDate4 = dateFormat.parse("2020-06-15-16.00.00");
+        Date endDate4 = dateFormat.parse("2020-12-31-23.59.59");
+        Price price4 = Price.builder()
+                .priceId(4L)
+                .brand(Brand.builder().brandId(1).name("Zara").build())
+                .startDate(startDate4)
+                .endDate(endDate4)
+                .priceList(4)
+                .productId("35455")
+                .priority(1)
+                .price(38.95)
+                .currency("EUR")
+                .build();
+
+        Date startDate5 = dateFormat.parse("2020-06-15-00.00.00");
+        Date endDate5 = dateFormat.parse("2020-06-15-11.00.00");
+        Price price5 = Price.builder()
+                .priceId(5L)
+                .brand(Brand.builder().brandId(2).name("PULL&BEAR").build())
+                .startDate(startDate5)
+                .endDate(endDate5)
+                .priceList(2)
+                .productId("35455")
+                .priority(1)
+                .price(30.50)
+                .currency("EUR")
+                .build();
+
+        Date startDate6 = dateFormat.parse("2020-06-15-16.00.00");
+        Date endDate6 = dateFormat.parse("2020-12-31-23.59.59");
+        Price price6 = Price.builder()
+                .priceId(6L)
+                .brand(Brand.builder().brandId(2).name("PULL&BEAR").build())
+                .startDate(startDate6)
+                .endDate(endDate6)
+                .priceList(2)
+                .productId("35455")
+                .priority(1)
+                .price(38.95)
+                .currency("EUR")
+                .build();
+        return List.of(price1, price2, price3, price4, price5, price6);
     }
-
-//    private void setPriceValues(
-//            Price price, String brandId, String startDate, String endDate, int priceList,
-//            String productId, int priority, double priceValue, String currency) {
-//        price.setBrandId(brandId);
-//        try {
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            Date parsedStartDate = dateFormat.parse(startDate);
-//            Date parsedEndDate = dateFormat.parse(endDate);
-//            price.setStartDate(parsedStartDate);
-//            price.setEndDate(parsedEndDate);
-//        } catch (ParseException e) {
-//            e.printStackTrace(); // Manejo adecuado de la excepción
-//        }
-//        price.setPriceList(priceList);
-//        price.setProductId(productId);
-//        price.setPriority(priority);
-//        price.setPrice(priceValue);
-//        price.setCurrency(currency);
-//    }
 
 }
